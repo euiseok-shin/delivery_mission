@@ -18,6 +18,7 @@ import numpy as np
 import rospy
 from vision_msgs.msg import Detection2DArray, Detection2D, BoundingBox2D
 from sensor_msgs.msg import Image
+from std_msgs.msg import Int32
 from cv_bridge import CvBridge
 
 import ros_numpy
@@ -132,6 +133,7 @@ class Yolov7Publisher:
 
         self.traffic_publisher = rospy.Publisher("traffic_light2", Bool, queue_size=queue_size)
         self.emergency_publisher = rospy.Publisher("emergency_light2", Bool, queue_size=queue_size)
+        self.delivery_publisher = rospy.Publisher("delivery_msg", Int32, queue_size=queue_size)
 
 ################################################################################################################
 
@@ -193,24 +195,38 @@ class Yolov7Publisher:
             #print(classes)
 
             close_delivery = []
+            delivery_middle = 0
+            delivery_msg =0
             for xofclass in range (len(classes)):
                 close_delivery.append([classes[xofclass], bboxes[xofclass][0]+bboxes[xofclass][2]//2])
             close_delivery.sort(key = lambda x: x[1], reverse = True)
-            print(f'오른쪽 놈: {close_delivery}')
-            # for i in range(len(close_delivery)):
-            #     if(close_delivery[i][0] == 14 or close_delivery[i][0]==16 or close_delivery[i][0]==17 or close_delivery[i][0]==18 or close_delivery[i][0]==19 or close_delivery[i][0] == 20):
-            #         #퍼블리시
-            #         break
+            
+            for i in range(len(close_delivery)):
+                if(close_delivery[i][0] == 14 or close_delivery[i][0]==16 or close_delivery[i][0]==17 or close_delivery[i][0]==18 or close_delivery[i][0]==19 or close_delivery[i][0] == 20):
+                    delivery_middle = close_delivery[i][0]
+                    break
+            print(f'오른쪽 놈: {delivery_middle}')
+            if delivery_middle ==14:
+                delivery_msg = 1
+            elif delivery_middle == 16:
+                delivery_msg = 2
+            elif delivery_middle == 17:
+                delivery_msg =3 
+            elif delivery_middle == 18:
+                delivery_msg =4
+            elif delivery_middle == 19:
+                delivery_msg = 5
+            elif delivery_middle == 20:
+                delivery_msg = 20
+            else :
+                pass
+            print(delivery_msg)
+            self.delivery_publisher.publish(delivery_msg)
 
 
 
 
-################################################################################################################
-###################################        발행 조건 -> Publish         ###################################
-        
- 
 
-################################################################################################################
 
 
             vis_img = draw_detections_delivery(np_img_orig, bboxes, classes,
