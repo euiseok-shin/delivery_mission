@@ -198,7 +198,7 @@ class Yolov7Publisher:
             delivery_middle = 0
             delivery_msg =0
             for xofclass in range (len(classes)):
-                close_delivery.append([classes[xofclass], bboxes[xofclass][0]+bboxes[xofclass][2]//2])
+                close_delivery.append([classes[xofclass], abs(bboxes[xofclass][1]-bboxes[xofclass][3])])
             close_delivery.sort(key = lambda x: x[1], reverse = True)
             
             for i in range(len(close_delivery)):
