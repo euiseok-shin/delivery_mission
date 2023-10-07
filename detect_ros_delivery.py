@@ -202,14 +202,23 @@ class Yolov7Publisher:
 
 
             for xofclass in range (len(classes)):
-                close_delivery.append([classes[xofclass], abs(bboxes[xofclass][1]-bboxes[xofclass][3]),abs(bboxes[xofclass][3]-bboxes[xofclass][1])])
-            biggest_delivery =close_delivery
-            close_delivery.sort(key = lambda x: x[1], reverse = True)
-            biggest_delivery.sort(key=lambda x: x[2], reverse = True)
-            if close_delivery[0][0] == biggest_delivery[0][0]:
+                close_delivery.append([classes[xofclass], bboxes[xofclass][2]-bboxes[xofclass][0], bboxes[xofclass][3]-bboxes[xofclass][1]])
+            if len(close_delivery>=1):
+
+                biggest_delivery = close_delivery
+                close_delivery.sort(key = lambda x: x[1], reverse = True)
+                biggest_delivery.sort(key = lambda x: x[2], reverse = True)
                 delivery_middle = close_delivery[0][0]
-            elif close_delivery[0][1] <= biggest_delivery[0][1]:
-                delivery_middle = close_delivery[0][0]
+
+                if close_delivery[0][0] == biggest_delivery[0][0]:
+                    delivery_middle = close_delivery[0][0]
+                elif close_delivery[0][1] >= biggest_delivery[0][1]:
+                    if close_delivery[0][2] <= biggest_delivery[0][2]:
+                        delivery_middle = biggest_delivery[0][0]
+
+
+
+
             # publish
 
             print(f'오른쪽 놈: {delivery_middle}')
@@ -227,7 +236,7 @@ class Yolov7Publisher:
                 delivery_msg = 20
             else:
                 pass
-            print(delivery_msg)
+            # print(delivery_msg)
             self.delivery_publisher.publish(delivery_msg)
 
 
